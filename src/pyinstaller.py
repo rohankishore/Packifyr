@@ -2,7 +2,7 @@ import os
 
 from PyQt6.QtCore import Qt, QStringListModel
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFileDialog, QHBoxLayout, \
-    QSpacerItem, QLabel, QListView, QDialogButtonBox, QDialog
+    QSpacerItem, QLabel, QListView, QDialogButtonBox, QDialog, QInputDialog, QListWidget
 from qfluentwidgets import (TextEdit,
                             ListWidget)
 
@@ -72,14 +72,23 @@ class PyInstaller(QWidget):
 
         self.main_layout.addSpacerItem(spacer_item_small)
 
+        self.advanced_group = QGroupBox("Advanced Options")
+        self.advanced_layout = QVBoxLayout(self.advanced_group)
+        self.options_layout.addWidget(self.advanced_group)
+
+        self.options_layout.addSpacerItem(spacer_item_small)
+
+        self.hidden_import_button = QPushButton("Add Hidden Imports")
+        self.hidden_import_button.clicked.connect(self.hidden_imports)
+        self.advanced_layout.addWidget(self.hidden_import_button)
+
+
         self.script_layout = QHBoxLayout()
         self.script_layout.addSpacerItem(spacer_item_medium)
         self.main_layout.addLayout(self.script_layout)
 
         self.cscript = TextEdit()
-        # self.script_layout.addWidget(self.cscript)
 
-        # Download Button
         self.button_layout = QHBoxLayout()
         self.main_layout.addLayout(self.button_layout)
         self.button_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -87,15 +96,7 @@ class PyInstaller(QWidget):
         self.download_button.clicked.connect(self.execute)
         self.button_layout.addWidget(self.download_button)
 
-        # GIF Loading Screen
-        self.gif_layout = QHBoxLayout()
-        self.main_layout.addLayout(self.gif_layout)
-        self.loading_label = QLabel()
-        self.main_layout.addWidget(self.loading_label)
-
-        # Progress Area
         self.count_layout = QHBoxLayout()
-        # Create a QListWidget to display downloading status
         self.download_list_widget = ListWidget()
         self.count_layout.addWidget(self.download_list_widget)
         self.main_layout.addLayout(self.count_layout)
@@ -110,6 +111,10 @@ class PyInstaller(QWidget):
         self.add_folders_dialog = QDialog()
         self.add_folders_dialog.setWindowTitle("Select Additional Folders")
         self.add_folders_dialog.setModal(True)
+
+        self.hidden_import_dialog = QDialog()
+        self.hidden_import_dialog.setWindowTitle("Add Hidden Imports")
+        self.hidden_import_dialog.setModal(True)
 
     def add_files(self):
         file_dialog = QFileDialog()
@@ -229,6 +234,42 @@ class PyInstaller(QWidget):
                 folder_paths.append(file_path)
         return folder_paths
 
+    def hidden_imports(self):
+        layout = QVBoxLayout()
+        self.hidden_import_dialog.setLayout(layout)
+        self.hidden_imports_list = QListWidget()
+        layout.addWidget(self.hidden_imports_list)
+
+        button_layout = QHBoxLayout()
+        layout.addLayout(button_layout)
+
+        self.add_button = QPushButton("Add")
+        self.add_button.clicked.connect(self.add_import)
+        button_layout.addWidget(self.add_button)
+
+        self.remove_button = QPushButton("Remove")
+        self.remove_button.clicked.connect(self.remove_import)
+        button_layout.addWidget(self.remove_button)
+
+        self.hidden_import_dialog.show()
+
+    def add_import(self):
+        import_name, ok = QInputDialog.getText(self, "Add Hidden Import", "Enter the name of the hidden import:")
+        if ok and import_name:
+            self.hidden_imports_list.addItem(import_name)
+
+    def remove_import(self):
+        selected_item = self.hidden_imports_list.currentItem()
+        if selected_item:
+            self.hidden_imports_list.takeItem(self.hidden_imports_list.row(selected_item))
+
+    def get_hidden_imports(self):
+        imports = []
+        for index in range(self.hidden_imports_list.count()):
+            item = self.hidden_imports_list.item(index)
+            imports.append(f"--hidden-imports {item.text()}")
+        return imports
+
     def get_window_status(self):
         status = self.app_type.currentText()
         win_status = ""
@@ -243,6 +284,16 @@ class PyInstaller(QWidget):
         window_status = self.get_window_status()
         file_status = self.exe_type.currentText()
         icon_cmd = ""
+        hidden_imports = self.get_hidden_imports()
+        hidden_import_list = ""
+        for item in hidden_imports:
+            hidden_import_list += item + ' '
+        hidden_import_list = hidden_import_list.strip()  # to remove the trailing space
+
+        if hidden_imports == "":
+            pass
+        else:
+            hidden_imports = hidden_imports
 
         if self.icon_file == "":
             pass
@@ -288,7 +339,7 @@ class PyInstaller(QWidget):
             formatted_list_file = ""
 
         try:
-            install_cmd = "pyinstaller --noconfirm" + icon_cmd + " --" + window_status + "--" + file_status + " " + formatted_list_folder + formatted_list_file + self.py_file
+            install_cmd = "pyinstaller --noconfirm" + icon_cmd + " --" + window_status + "--" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + " " + self.py_file
             print(install_cmd)
         except Exception:
             print("oops broski")
