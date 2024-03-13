@@ -13,7 +13,7 @@ PyQt6 GUI for PyInstaller, Nuitka, etc
   <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
 </div>
 
-## 🎵 What is Spotifyte?
+## 📦 What is Packifyr?
 Spotifyte helps you to use SpotDL with GUI Interface. With Spotifyte, you can download:
 - Single tracks
 - Playlists
