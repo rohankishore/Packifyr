@@ -23,10 +23,6 @@ Spotifyte helps you to use SpotDL with GUI Interface. With Spotifyte, you can do
 
 ## Interface
 
-![image](https://github.com/rohankishore/Spotifyte/assets/109947257/0a629cda-fbff-4168-9e27-25bf8414b744)
-
-![image](https://github.com/rohankishore/Spotifyte/assets/109947257/69fc68ff-08eb-43ad-b87c-3f9680c10c3f)
-
 <br>
 
 ## 👒 Getting Started
@@ -35,18 +31,11 @@ Spotifyte helps you to use SpotDL with GUI Interface. With Spotifyte, you can do
 pip install -r requirements.txt
 ```
 
-```bash
-python -m main.py
-```
-
 <br>
 
 
 ## 🌊 Demo
 
-https://github.com/rohankishore/Spotifyte/assets/109947257/d3954049-8d9f-4397-b3a2-97eaf61b3655
-
-> Please note that downloading speeds depend on your internet speed.
 
 <br>
 
@@ -58,26 +47,7 @@ Hey! First of all, thank you for considering to support me. You can support me b
 
 ## 💖 Credits
 
-This project was made possible just because of [SpotDL](https://github.com/spotDL/spotify-downloader) and [zhiyiYo](https://github.com/zhiyiYo)'s [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets).
+This project was made possible just because of [zhiyiYo](https://github.com/zhiyiYo)'s [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets).
 
 <br>
 
-
-### I hope you'll enjoy using Spotifyte as much as I enjoyed while making it. Thanks a lot!
-
-
-```
-                                              ⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣶⣶⣶⣶⣤⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀
-                                              ⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⡀⠀⠀⠀⠀
-                                              ⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀⠀⠀
-                                              ⠀⢀⣾⣿⡿⠿⠛⠛⠛⠉⠉⠉⠉⠛⠛⠛⠿⠿⣿⣿⣿⣿⣿⣷⡀⠀
-                                              ⠀⣾⣿⣿⣇⠀⣀⣀⣠⣤⣤⣤⣤⣠⣀⣀⠀⠀⠀⠈⠙⠻⣿⣿⣷⠀
-                                              ⢠⣿⣿⣿⣿⡿⠿⠟⠛⠛⠛⠛⠛⠘⠺⠿⢿⣿⣶⣤⣀⣠⣿⣿⣿⡄
-                                              ⢸⣿⣿⣿⣿⣇⣀⣀⣤⣤⣤⣤⣤⣄⣀⣀⠀⠀⠉⠛⢿⣿⣿⣿⣿⡇
-                                              ⠘⣿⣿⣿⣿⣿⠿⠿⠛⠛⠛⠛⠛⠛⠿⠿⣿⣶⣦⣤⣾⣿⣿⣿⣿⠃
-                                              ⠀⢿⣿⣿⣿⣿⣤⣤⣤⣤⣶⣶⣦⣤⣤⣄⡀⠈⠙⣿⣿⣿⣿⣿⡿⠀
-                                              ⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣾⣿⣿⣿⣿⡿⠁⠀
-                                              ⠀⠀⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀
-                                              ⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⠁⠀⠀⠀⠀
-                                              ⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠛⠿⠿⠿⠿⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-```
