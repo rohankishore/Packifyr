@@ -1,6 +1,6 @@
 import os
-
-from PyQt6.QtCore import Qt, QStringListModel
+from subprocess import Popen, PIPE, CalledProcessError
+from PyQt6.QtCore import Qt, QStringListModel, QProcess
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFileDialog, QHBoxLayout, \
     QSpacerItem, QLabel, QListView, QDialogButtonBox, QDialog, QInputDialog, QListWidget
 from qfluentwidgets import (TextEdit,
@@ -18,7 +18,7 @@ class PyInstaller(QWidget):
 
         self.icon_file = ""
         self.py_file = ""
-
+        self.install_cmd = ""
         self.main_layout = QVBoxLayout()
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -82,6 +82,8 @@ class PyInstaller(QWidget):
         self.hidden_import_button.clicked.connect(self.hidden_imports)
         self.advanced_layout.addWidget(self.hidden_import_button)
 
+        self.output_textedit = TextEdit()
+        self.advanced_layout.addWidget(self.output_textedit)
 
         self.script_layout = QHBoxLayout()
         self.script_layout.addSpacerItem(spacer_item_medium)
@@ -283,12 +285,16 @@ class PyInstaller(QWidget):
 
         window_status = self.get_window_status()
         file_status = self.exe_type.currentText()
+        hidden_imports = ""
         icon_cmd = ""
-        hidden_imports = self.get_hidden_imports()
-        hidden_import_list = ""
-        for item in hidden_imports:
-            hidden_import_list += item + ' '
-        hidden_import_list = hidden_import_list.strip()  # to remove the trailing space
+        try:
+            hidden_imports = self.get_hidden_imports()
+            hidden_import_list = ""
+            for item in hidden_imports:
+                hidden_import_list += item + ' '
+            hidden_import_list = hidden_import_list.strip()  # to remove the trailing space
+        except AttributeError:
+            pass
 
         if hidden_imports == "":
             pass
@@ -298,8 +304,8 @@ class PyInstaller(QWidget):
         if self.icon_file == "":
             pass
         else:
-            icon_cmd = f"--icon='{self.icon_file}'"
-            print("Cmd Icon: " + icon_cmd)
+            icon_cmd = f"--icon=\"{self.icon_file}\""  # Fix icon_cmd formatting
+            # print("Cmd Icon: " + icon_cmd)
 
         if file_status == "":
             file_status = "onedir"
@@ -316,30 +322,51 @@ class PyInstaller(QWidget):
         formatted_list_folder = ""
         for folder_path in additional_folders:
             folder_name = os.path.basename(folder_path)
-            formatted_list_folder += f'--add-data "{folder_path}";{folder_name} '
+            formatted_list_folder += f'--add-data="{folder_path};." '
         formatted_list_folder = formatted_list_folder.strip()  # Remove leading/trailing whitespace
         formatted_list_folder = formatted_list_folder + " "
 
         if formatted_list_folder != "":
             formatted_list_folder = formatted_list_folder.strip()
-            print(formatted_list_folder)
+            # print(formatted_list_folder)
         else:
             formatted_list_folder = ""
 
         for file_path in additional_files:
             file_name = os.path.basename(file_path)
-            formatted_list_file += f'--add-data "{file_path}";{file_name} '
+            formatted_list_file += f'--add-data="{file_path};." '
         formatted_list_file = formatted_list_file.strip()  # Remove leading/trailing whitespace
         formatted_list_file = formatted_list_file + " "
 
         if formatted_list_file != "":
             formatted_list_file = formatted_list_file.strip()
-            print(formatted_list_file)
+            # print(formatted_list_file)
         else:
             formatted_list_file = ""
 
         try:
-            install_cmd = "pyinstaller --noconfirm" + icon_cmd + " --" + window_status + "--" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + " " + self.py_file
-            print(install_cmd)
+            self.install_cmd = "pyinstaller --noconfirm" + " " + icon_cmd + " --" + window_status + " --" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + " " + self.py_file
+            print(self.install_cmd)
         except Exception:
             print("oops broski")
+
+        try:
+            self.output_textedit.clear()
+
+            self.read_output()
+
+        except Exception as e:
+            print("Error:", e)
+
+    def read_output(self):
+        with Popen(self.install_cmd, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+            for line in p.stdout:
+                print(line, end='')  # process line here
+                self.output_textedit.append(line)
+
+        if p.returncode != 0:
+            raise CalledProcessError(p.returncode, p.args)
+
+    def process_finished(self):
+        self.output_textedit.append("DONE")
+        print("done")
