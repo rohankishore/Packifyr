@@ -1,17 +1,29 @@
 # coding:utf-8
+import json
 import sys
+
+import qdarktheme
 from PyQt6.QtCore import Qt, pyqtSignal, QEasingCurve, QUrl
 from PyQt6.QtGui import QIcon, QDesktopServices
-from PyQt6.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout, QApplication, QFrame
+from PyQt6.QtWidgets import QApplication, QLabel, QHBoxLayout, QVBoxLayout, QFrame
+from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import (NavigationBar, NavigationItemPosition, MessageBox,
                             isDarkTheme, setTheme, Theme,
-                            PopUpAniStackedWidget)
-from qfluentwidgets import FluentIcon as FIF
+                            PopUpAniStackedWidget, setThemeColor)
 from qframelesswindow import FramelessWindow, TitleBar
 
-import artist
+import get_captions
 import playlist
-from song import Song
+import settings
+from pyinstaller import PyInstaller
+
+APP_NAME = "Packifyr"
+
+with open("resources/misc/config.json", "r") as themes_file:
+    _themes = json.load(themes_file)
+
+theme_color = _themes["theme"]
+progressive = _themes["progressive"]
 
 
 class StackedWidget(QFrame):
@@ -105,17 +117,17 @@ class Window(FramelessWindow):
         setTheme(Theme.DARK)
 
         # change the theme color
-        # setThemeColor('#0078d4')
+        setThemeColor(theme_color)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.navigationBar = NavigationBar(self)
         self.stackWidget = StackedWidget(self)
 
         # create sub interface
-        self.songInterface = Song(self)
-        self.playlistInterface = playlist.Playlist(self)
-        self.artistInterface = artist.Artist(self)
-        # self.libraryInterface = Widget('library Interface', self)
+        self.pyInstaller = PyInstaller()
+        self.playlistInterface = playlist.YoutubePlaylist()
+        self.captionInterface = get_captions.CaptionWidget()
+        self.settingsInterface = settings.SettingsPage()
 
         # initialize layout
         self.initLayout()
@@ -133,11 +145,12 @@ class Window(FramelessWindow):
         self.hBoxLayout.setStretchFactor(self.stackWidget, 1)
 
     def initNavigation(self):
-        self.addSubInterface(self.songInterface, FIF.MUSIC, 'Songs', selectedIcon=FIF.MUSIC)
-        self.addSubInterface(self.playlistInterface, FIF.MUSIC_FOLDER, 'Playlists', selectedIcon=FIF.MUSIC_FOLDER)
-        self.addSubInterface(self.artistInterface, FIF.PEOPLE, 'Artists', selectedIcon=FIF.PEOPLE)
-        # self.addSubInterface(self.libraryInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM,
-        #                      FIF.SETTING)
+        self.addSubInterface(self.pyInstaller, QIcon("resources/icons/pyinstaller.png"), 'PyInstaller', selectedIcon=QIcon("resources/icons/pyinstaller.png"))
+        self.addSubInterface(self.playlistInterface, QIcon("resources/icons/Nuitka.svg"), 'Nuitka', selectedIcon=QIcon("resources/icons/Nuitka.svg"))
+        self.addSubInterface(self.captionInterface, QIcon("resources/icons/captions.svg"), 'Captions',
+                             selectedIcon=QIcon("resources/icons/pyinstaller.png"))
+        self.addSubInterface(self.settingsInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM,
+                             FIF.SETTING)
         self.navigationBar.addItem(
             routeKey='About',
             icon=FIF.HELP,
@@ -148,14 +161,12 @@ class Window(FramelessWindow):
         )
 
         self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
-        self.navigationBar.setCurrentItem(self.songInterface.objectName())
+        self.navigationBar.setCurrentItem(self.pyInstaller.objectName())
 
     def initWindow(self):
-        self.resize(900, 700)
-        self.setWindowIcon(QIcon('resource/icons/icon.png'))
-        self.setWindowTitle('Spotifyte')
-        #self.titleBar.setAttribute(Qt.WA_StyledBackground)
-
+        self.resize(1000, 600)
+        self.setWindowIcon(QIcon('resources/icons/icon.png'))
+        self.setWindowTitle(APP_NAME)
         self.setQss()
 
     def addSubInterface(self, interface, icon, text: str, position=NavigationItemPosition.TOP, selectedIcon=None):
@@ -172,7 +183,7 @@ class Window(FramelessWindow):
 
     def setQss(self):
         color = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/{color}/demo.qss', encoding='utf-8') as f:
+        with open(f'resources/{color}/demo.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def switchTo(self, widget):
@@ -183,12 +194,12 @@ class Window(FramelessWindow):
         self.navigationBar.setCurrentItem(widget.objectName())
 
     def showMessageBox(self):
-        text_for_about = "Heya! it's Rohan, the creator of Spotifyte. I hope you've enjoyed using this app as much as I enjoyed making it." + "" + "\n" + "\n" \
-                                                                                                                                                          "I'm a school student and I can't earn my own money LEGALLY. So any donations will be largely appreciated. Also, if you find any bugs / have any feature requests, you can open a Issue/ Pull Request in the Repo." \
-                                                                                                                                                          "You can visit GitHub by pressing the button below. You can find Ko-Fi link there :) " + "\n" + "\n" + \
-                         "Once again, thank you for using Spotifyte. Please consider giving it a star ⭐ as it will largely motivate me to create more of such apps. Also do consider giving me a follow ;) "
+        text_for_about = f"Heya! it's Rohan, the creator of {APP_NAME}. I hope you've enjoyed using this app as much as I enjoyed making it." + "" + "\n" + "\n" \
+                                                                                                                                                            "I'm a school student and I can't earn my own money LEGALLY. So any donations will be largely appreciated. Also, if you find any bugs / have any feature requests, you can open a Issue/ Pull Request in the Repo." \
+                                                                                                                                                            "You can visit GitHub by pressing the button below. You can find Ko-Fi link there :) " + "\n" + "\n" + \
+                         f"Once again, thank you for using {APP_NAME}. Please consider giving it a star ⭐ as it will largely motivate me to create more of such apps. Also do consider giving me a follow ;) "
         w = MessageBox(
-            'Spotifyte',
+            APP_NAME,
             text_for_about,
             self
         )
@@ -196,21 +207,16 @@ class Window(FramelessWindow):
         w.cancelButton.setText('Return')
 
         if w.exec():
-            QDesktopServices.openUrl(QUrl("https://github.com/rohankishore/Spotifyte"))
+            QDesktopServices.openUrl(QUrl(f"https://github.com/rohankishore/{APP_NAME}"))
 
 
 if __name__ == '__main__':
+    app = QApplication(sys.argv)
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 
-    # ----- DEPRECIATED ------ #
-
-    # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
-    # ----- DEPRECIATED ------ #
-
-    app = QApplication(sys.argv)
+    qdarktheme.enable_hi_dpi()
     w = Window()
+    qdarktheme.setup_theme("dark", custom_colors={"primary": theme_color})
     w.show()
-    app.exec()
+    sys.exit(app.exec())
