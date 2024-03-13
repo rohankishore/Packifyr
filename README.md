@@ -1,8 +1,8 @@
 <div align="center">
 
-![icon](https://github.com/rohankishore/Spotifyte/assets/109947257/210e9e94-a767-4d6f-9d6b-cdebd8b29416)   
+![icon](https://github.com/rohankishore/Packifyr/assets/109947257/2d9de576-70ee-4636-9857-c289a8237c77)
 # Packifyr
-Spotify track and playlist downloader made with PySide6 and SpotDL. In simple terms, Spotifyte is like an GUI for SpotDL
+PyQt6 GUI for PyInstaller, Nuitka, etc
 
 </div>
 
