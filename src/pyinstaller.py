@@ -1,4 +1,3 @@
-import json
 import os
 
 from PyQt6.QtCore import Qt, QStringListModel
@@ -6,12 +5,6 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QCombo
     QSpacerItem, QLabel, QListView, QDialogButtonBox, QDialog
 from qfluentwidgets import (TextEdit,
                             ListWidget)
-
-with open("resources/misc/config.json", "r") as themes_file:
-    _themes = json.load(themes_file)
-
-theme_color = _themes["theme"]
-progressive = _themes["progressive"]
 
 
 class PyInstaller(QWidget):
@@ -84,7 +77,7 @@ class PyInstaller(QWidget):
         self.main_layout.addLayout(self.script_layout)
 
         self.cscript = TextEdit()
-        self.script_layout.addWidget(self.cscript)
+        # self.script_layout.addWidget(self.cscript)
 
         # Download Button
         self.button_layout = QHBoxLayout()
@@ -249,7 +242,14 @@ class PyInstaller(QWidget):
 
         window_status = self.get_window_status()
         file_status = self.exe_type.currentText()
-        
+        icon_cmd = ""
+
+        if self.icon_file == "":
+            pass
+        else:
+            icon_cmd = f"--icon='{self.icon_file}'"
+            print("Cmd Icon: " + icon_cmd)
+
         if file_status == "":
             file_status = "onedir"
 
@@ -262,20 +262,33 @@ class PyInstaller(QWidget):
             pass
 
         formatted_list_file = ""
-        formatted_list = ""
+        formatted_list_folder = ""
         for folder_path in additional_folders:
             folder_name = os.path.basename(folder_path)
-            formatted_list += f'--add-data "{folder_path}";{folder_name} '
-        formatted_list = formatted_list.strip()  # Remove leading/trailing whitespace
+            formatted_list_folder += f'--add-data "{folder_path}";{folder_name} '
+        formatted_list_folder = formatted_list_folder.strip()  # Remove leading/trailing whitespace
+        formatted_list_folder = formatted_list_folder + " "
 
-        if formatted_list != "":
-            formatted_list = formatted_list.strip()
-            print(formatted_list)
+        if formatted_list_folder != "":
+            formatted_list_folder = formatted_list_folder.strip()
+            print(formatted_list_folder)
         else:
-            formatted_list = ""
+            formatted_list_folder = ""
+
+        for file_path in additional_files:
+            file_name = os.path.basename(file_path)
+            formatted_list_file += f'--add-data "{file_path}";{file_name} '
+        formatted_list_file = formatted_list_file.strip()  # Remove leading/trailing whitespace
+        formatted_list_file = formatted_list_file + " "
+
+        if formatted_list_file != "":
+            formatted_list_file = formatted_list_file.strip()
+            print(formatted_list_file)
+        else:
+            formatted_list_file = ""
 
         try:
-            install_cmd = "pyinstaller --noconfirm --" + window_status + "--" + file_status + " " + self.py_file
+            install_cmd = "pyinstaller --noconfirm" + icon_cmd + " --" + window_status + "--" + file_status + " " + formatted_list_folder + formatted_list_file + self.py_file
             print(install_cmd)
         except Exception:
             print("oops broski")
