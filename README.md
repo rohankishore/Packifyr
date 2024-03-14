@@ -4,7 +4,7 @@
 # Packifyr
 PyQt6 GUI for PyInstaller, Nuitka, etc
 
-</div>
+</div>  
 
 <div align="center">
   
