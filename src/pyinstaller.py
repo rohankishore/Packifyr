@@ -1,10 +1,42 @@
 import os
 from subprocess import Popen, PIPE, CalledProcessError
-from PyQt6.QtCore import Qt, QStringListModel, QProcess
+
+from PyQt6.QtCore import Qt, QStringListModel
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFileDialog, QHBoxLayout, \
-    QSpacerItem, QLabel, QListView, QDialogButtonBox, QDialog, QInputDialog, QListWidget
+    QSpacerItem, QLabel, QListView, QDialogButtonBox, QDialog, QInputDialog, QListWidget, QCheckBox
 from qfluentwidgets import (TextEdit,
-                            ListWidget)
+                            ListWidget, LineEdit)
+
+
+class DetailsWidget(QWidget):
+    def __init__(self, summary_text, parent=None):
+        super().__init__(parent)
+
+        self.is_open = True
+
+        layout = QVBoxLayout()
+
+        self.summary_button = QPushButton(summary_text)
+        self.summary_button.clicked.connect(self.toggle_details)
+        layout.addWidget(self.summary_button)
+
+        self.details_layout = QVBoxLayout()
+        self.details_layout.setContentsMargins(10, 0, 0, 0)  # Set left margin to indent
+        layout.addLayout(self.details_layout)
+
+        self.setLayout(layout)
+
+    def add_detail_widget(self, widget):
+        self.details_layout.addWidget(widget)
+
+    def toggle_details(self):
+        self.is_open = not self.is_open
+        for i in range(self.details_layout.count()):
+            self.details_layout.itemAt(i).widget().setVisible(self.is_open)
+        if self.is_open:
+            self.summary_button.setText("Less Options <")
+        else:
+            self.summary_button.setText("More Options >")
 
 
 class PyInstaller(QWidget):
@@ -82,14 +114,29 @@ class PyInstaller(QWidget):
         self.hidden_import_button.clicked.connect(self.hidden_imports)
         self.advanced_layout.addWidget(self.hidden_import_button)
 
+        self.advanced_layout.addSpacerItem(spacer_item_small)
+
+        self.more_options_menu = DetailsWidget("More Options >")
+        self._name = LineEdit()
+        self._name.setPlaceholderText("--name")
+        self.more_options_menu.add_detail_widget(self._name)
+
+        self._clean = QCheckBox("--clean")
+        self.more_options_menu.add_detail_widget(self._clean)
+
+        self._log_level = QComboBox()
+        self._log_level.setPlaceholderText("LOG LEVEL")
+        self._log_level.addItems(["TRACE", "DEBUG", "INFO", "WARN", "DEPRECATION", "ERROR", "FATAL"])
+        self.more_options_menu.add_detail_widget(self._log_level
+                                                 )
+        self.advanced_layout.addWidget(self.more_options_menu)
+
         self.output_textedit = TextEdit()
         self.advanced_layout.addWidget(self.output_textedit)
 
         self.script_layout = QHBoxLayout()
         self.script_layout.addSpacerItem(spacer_item_medium)
         self.main_layout.addLayout(self.script_layout)
-
-        self.cscript = TextEdit()
 
         self.button_layout = QHBoxLayout()
         self.main_layout.addLayout(self.button_layout)
@@ -287,6 +334,31 @@ class PyInstaller(QWidget):
         file_status = self.exe_type.currentText()
         hidden_imports = ""
         icon_cmd = ""
+        hidden_import_list = ""
+        _name = self._name.text()
+        _log_level = self._log_level.currentText()
+        _clean = ""
+
+        name_cmd = ""
+        log_cmd = ""
+
+        if _name == "":
+            pass
+        else:
+            name = self._name.text()
+            name_cmd = "--name " + f'"{_name}"'
+
+        if self._clean.isChecked():
+            _clean = "--clean"
+        else:
+            pass
+
+        if _log_level == "" or _name == "LOG LEVEL":
+            pass
+        else:
+            _log_level = self._log_level.currentText()
+            log_cmd = "--log-level " + f'"{_log_level}"'
+
         try:
             hidden_imports = self.get_hidden_imports()
             hidden_import_list = ""
@@ -305,7 +377,6 @@ class PyInstaller(QWidget):
             pass
         else:
             icon_cmd = f"--icon=\"{self.icon_file}\""  # Fix icon_cmd formatting
-            # print("Cmd Icon: " + icon_cmd)
 
         if file_status == "":
             file_status = "onedir"
@@ -345,7 +416,7 @@ class PyInstaller(QWidget):
             formatted_list_file = ""
 
         try:
-            self.install_cmd = "pyinstaller --noconfirm" + " " + icon_cmd + " --" + window_status + " --" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + " " + self.py_file
+            self.install_cmd = "pyinstaller --noconfirm" + " " + icon_cmd + " --" + window_status + " --" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + _clean + name_cmd + log_cmd + " " + self.py_file
             print(self.install_cmd)
         except Exception:
             print("oops broski")
