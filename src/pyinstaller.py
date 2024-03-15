@@ -1,4 +1,5 @@
 import os
+import threading
 from subprocess import Popen, PIPE, CalledProcessError
 
 from PyQt6.QtCore import Qt, QStringListModel
@@ -112,11 +113,12 @@ class PyInstaller(QWidget):
 
         self.hidden_import_button = QPushButton("Add Hidden Imports")
         self.hidden_import_button.clicked.connect(self.hidden_imports)
-        self.advanced_layout.addWidget(self.hidden_import_button)
+        # self.advanced_layout.addWidget(self.hidden_import_button)
 
         self.advanced_layout.addSpacerItem(spacer_item_small)
 
-        self.more_options_menu = DetailsWidget("More Options >")
+        self.more_options_menu = DetailsWidget("Less Options <")
+        self.more_options_menu.add_detail_widget(self.hidden_import_button)
         self._name = LineEdit()
         self._name.setPlaceholderText("--name")
         self.more_options_menu.add_detail_widget(self._name)
@@ -131,8 +133,16 @@ class PyInstaller(QWidget):
                                                  )
         self.advanced_layout.addWidget(self.more_options_menu)
 
+        self.advanced_layout.addSpacerItem(spacer_item_small)
+
+        self.cmd_layout = QVBoxLayout()
+
         self.output_textedit = TextEdit()
-        self.advanced_layout.addWidget(self.output_textedit)
+        self.cmd_layout.addWidget(self.output_textedit)
+
+        # self.custom_process = CustomProcess(install_cmd=self.install_cmd, output_textedit=self.output_textedit)  # Create an instance of CustomProcess
+
+        self.main_layout.addLayout(self.cmd_layout)
 
         self.script_layout = QHBoxLayout()
         self.script_layout.addSpacerItem(spacer_item_medium)
@@ -430,13 +440,17 @@ class PyInstaller(QWidget):
             print("Error:", e)
 
     def read_output(self):
-        with Popen(self.install_cmd, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
-            for line in p.stdout:
-                print(line, end='')  # process line here
-                self.output_textedit.append(line)
+        def run():
+            with Popen(self.install_cmd, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+                for line in p.stdout:
+                    print(line, end='')  # process line here
+                    self.output_textedit.append(line)
 
-        if p.returncode != 0:
-            raise CalledProcessError(p.returncode, p.args)
+            if p.returncode != 0:
+                raise CalledProcessError(p.returncode, p.args)
+
+        thread = threading.Thread(target=run)
+        thread.start()
 
     def process_finished(self):
         self.output_textedit.append("DONE")
