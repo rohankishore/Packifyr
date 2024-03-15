@@ -30,14 +30,17 @@ class DetailsWidget(QWidget):
     def add_detail_widget(self, widget):
         self.details_layout.addWidget(widget)
 
+    def add_detail_layout(self, layout):
+        self.details_layout.addLayout(layout)
+
     def toggle_details(self):
         self.is_open = not self.is_open
         for i in range(self.details_layout.count()):
             self.details_layout.itemAt(i).widget().setVisible(self.is_open)
         if self.is_open:
-            self.summary_button.setText("Less Options <")
+            self.summary_button.setText("Advanced Options <")
         else:
-            self.summary_button.setText("More Options >")
+            self.summary_button.setText("Advanced Options >")
 
 
 class PyInstaller(QWidget):
@@ -105,9 +108,9 @@ class PyInstaller(QWidget):
 
         self.main_layout.addSpacerItem(spacer_item_small)
 
-        self.advanced_group = QGroupBox("Advanced Options")
+        self.advanced_group = QGroupBox("")
         self.advanced_layout = QVBoxLayout(self.advanced_group)
-        self.options_layout.addWidget(self.advanced_group)
+        # self.options_layout.addWidget(self.advanced_group)
 
         self.options_layout.addSpacerItem(spacer_item_small)
 
@@ -117,23 +120,24 @@ class PyInstaller(QWidget):
 
         self.advanced_layout.addSpacerItem(spacer_item_small)
 
-        self.more_options_menu = DetailsWidget("Less Options <")
-        self.more_options_menu.add_detail_widget(self.hidden_import_button)
+        self.more_options_menu = DetailsWidget("Advanced Options <")
+        self.advanced_layout.addWidget(self.hidden_import_button)
         self._name = LineEdit()
         self._name.setPlaceholderText("--name")
-        self.more_options_menu.add_detail_widget(self._name)
+        self.advanced_layout.addWidget(self._name)
 
         self._clean = QCheckBox("--clean")
-        self.more_options_menu.add_detail_widget(self._clean)
+        self.advanced_layout.addWidget(self._clean)
 
         self._log_level = QComboBox()
         self._log_level.setPlaceholderText("LOG LEVEL")
         self._log_level.addItems(["TRACE", "DEBUG", "INFO", "WARN", "DEPRECATION", "ERROR", "FATAL"])
-        self.more_options_menu.add_detail_widget(self._log_level
-                                                 )
-        self.advanced_layout.addWidget(self.more_options_menu)
+        self.advanced_layout.addWidget(self._log_level)
+        self.main_layout.addWidget(self.more_options_menu)
 
-        self.advanced_layout.addSpacerItem(spacer_item_small)
+        self.more_options_menu.add_detail_widget(self.advanced_group)
+
+        # self.advanced_layout.addSpacerItem(spacer_item_small)
 
         self.cmd_layout = QVBoxLayout()
 
