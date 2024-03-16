@@ -142,6 +142,7 @@ class PyInstaller(QWidget):
         self.cmd_layout = QVBoxLayout()
 
         self.output_textedit = TextEdit()
+        self.output_textedit.setText("pyinstaller --noconfirm  --windowed --onedir")
         self.cmd_layout.addWidget(self.output_textedit)
 
         # self.custom_process = CustomProcess(install_cmd=self.install_cmd, output_textedit=self.output_textedit)  # Create an instance of CustomProcess
@@ -155,6 +156,7 @@ class PyInstaller(QWidget):
         self.button_layout = QHBoxLayout()
         self.main_layout.addLayout(self.button_layout)
         self.button_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
         self.download_button = QPushButton("Execute")
         self.download_button.clicked.connect(self.execute)
         self.button_layout.addWidget(self.download_button)
@@ -178,6 +180,15 @@ class PyInstaller(QWidget):
         self.hidden_import_dialog = QDialog()
         self.hidden_import_dialog.setWindowTitle("Add Hidden Imports")
         self.hidden_import_dialog.setModal(True)
+
+        # Trigger Managing
+        self._name.textChanged.connect(self.insert_cmd)
+        self.app_type.currentTextChanged.connect(self.insert_cmd)
+        self.exe_type.currentTextChanged.connect(self.insert_cmd)
+        self.selected_icon_label.windowIconTextChanged.connect(self.insert_cmd)
+        self._log_level.currentTextChanged.connect(self.insert_cmd)
+        self._clean.stateChanged.connect(self.insert_cmd)
+
 
     def add_files(self):
         file_dialog = QFileDialog()
@@ -280,6 +291,7 @@ class PyInstaller(QWidget):
             if selected_files:
                 self.selected_icon_label.setText(selected_files[0])
         self.icon_file = selected_files[0]
+        self.insert_cmd()
 
     def get_selected_files(self):
         file_paths = []
@@ -431,17 +443,22 @@ class PyInstaller(QWidget):
 
         try:
             self.install_cmd = "pyinstaller --noconfirm" + " " + icon_cmd + " --" + window_status + " --" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + _clean + name_cmd + log_cmd + " " + self.py_file
-            print(self.install_cmd)
+            #print(self.install_cmd)
         except Exception:
             print("oops broski")
 
         try:
             self.output_textedit.clear()
 
-            self.read_output()
+            self.insert_cmd()
+            # self.read_output()
 
-        except Exception as e:
-            print("Error:", e)
+        except RecursionError as e:
+            pass
+
+    def insert_cmd(self):
+        self.execute()
+        self.output_textedit.setText(self.install_cmd)
 
     def read_output(self):
         def run():
