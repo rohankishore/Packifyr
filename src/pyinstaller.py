@@ -1,6 +1,6 @@
 import os
 import threading
-from subprocess import Popen, PIPE, CalledProcessError
+from subprocess import Popen, PIPE
 
 from PyQt6.QtCore import Qt, QStringListModel
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFileDialog, QHBoxLayout, \
@@ -181,6 +181,11 @@ class PyInstaller(QWidget):
         self.hidden_import_dialog.setWindowTitle("Add Hidden Imports")
         self.hidden_import_dialog.setModal(True)
 
+        self.execute_button = QPushButton("Run Command")
+        self.execute_button.clicked.connect(self.read_output)
+        self.execute_button.setVisible(False)
+        self.button_layout.addWidget(self.execute_button)
+
         # Trigger Managing
         self._name.textChanged.connect(self.insert_cmd)
         self.app_type.currentTextChanged.connect(self.insert_cmd)
@@ -188,7 +193,6 @@ class PyInstaller(QWidget):
         self.selected_icon_label.windowIconTextChanged.connect(self.insert_cmd)
         self._log_level.currentTextChanged.connect(self.insert_cmd)
         self._clean.stateChanged.connect(self.insert_cmd)
-
 
     def add_files(self):
         file_dialog = QFileDialog()
@@ -355,7 +359,6 @@ class PyInstaller(QWidget):
         return win_status
 
     def execute(self):
-
         window_status = self.get_window_status()
         file_status = self.exe_type.currentText()
         hidden_imports = ""
@@ -364,6 +367,8 @@ class PyInstaller(QWidget):
         _name = self._name.text()
         _log_level = self._log_level.currentText()
         _clean = ""
+
+        self.py_file_directory = os.path.dirname(self.py_file)
 
         name_cmd = ""
         log_cmd = ""
@@ -442,8 +447,8 @@ class PyInstaller(QWidget):
             formatted_list_file = ""
 
         try:
-            self.install_cmd = "pyinstaller --noconfirm" + " " + icon_cmd + " --" + window_status + " --" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + _clean + name_cmd + log_cmd + " " + self.py_file
-            #print(self.install_cmd)
+            self.install_cmd = "pyinstaller --noconfirm" + " " + f"--distpath {self.py_file_directory}" + " " + icon_cmd + " --" + window_status + " --" + file_status + " " + formatted_list_folder + formatted_list_file + hidden_import_list + _clean + name_cmd + log_cmd + " " + self.py_file
+            # print(self.install_cmd)
         except Exception:
             print("oops broski")
 
@@ -459,16 +464,22 @@ class PyInstaller(QWidget):
     def insert_cmd(self):
         self.execute()
         self.output_textedit.setText(self.install_cmd)
+        self.execute_button.setVisible(True)
 
     def read_output(self):
+
         def run():
-            with Popen(self.install_cmd, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+            command = self.output_textedit.toPlainText()
+            with Popen(command, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
                 for line in p.stdout:
                     print(line, end='')  # process line here
-                    self.output_textedit.append(line)
+                    update_output_textedit(line)
 
-            if p.returncode != 0:
-                raise CalledProcessError(p.returncode, p.args)
+                if p.returncode != 0:
+                    pass
+
+        def update_output_textedit(line):
+            self.output_textedit.append(line)
 
         thread = threading.Thread(target=run)
         thread.start()
