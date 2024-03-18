@@ -1,4 +1,6 @@
 import os
+import platform
+import subprocess
 import threading
 from subprocess import Popen, PIPE
 
@@ -145,7 +147,9 @@ class PyInstaller(QWidget):
         self.output_textedit.setText("pyinstaller --noconfirm  --windowed --onedir")
         self.cmd_layout.addWidget(self.output_textedit)
 
-        # self.custom_process = CustomProcess(install_cmd=self.install_cmd, output_textedit=self.output_textedit)  # Create an instance of CustomProcess
+        self.open_dir_button = QPushButton("Open Output Directory")
+        self.open_dir_button.clicked.connect(lambda : self.open_directory(self.py_file_directory))
+        self.open_dir_button.setVisible(False)
 
         self.main_layout.addLayout(self.cmd_layout)
 
@@ -153,13 +157,15 @@ class PyInstaller(QWidget):
         self.script_layout.addSpacerItem(spacer_item_medium)
         self.main_layout.addLayout(self.script_layout)
 
-        self.button_layout = QHBoxLayout()
+        self.button_layout = QVBoxLayout()
         self.main_layout.addLayout(self.button_layout)
         self.button_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.download_button = QPushButton("Execute")
         self.download_button.clicked.connect(self.execute)
         self.button_layout.addWidget(self.download_button)
+
+        self.button_layout.addWidget(self.open_dir_button)
 
         self.count_layout = QHBoxLayout()
         self.download_list_widget = ListWidget()
@@ -182,7 +188,7 @@ class PyInstaller(QWidget):
         self.hidden_import_dialog.setModal(True)
 
         self.execute_button = QPushButton("Run Command")
-        self.execute_button.clicked.connect(self.read_output)
+        self.execute_button.clicked.connect(self.start_command)
         self.execute_button.setVisible(False)
         self.button_layout.addWidget(self.execute_button)
 
@@ -466,24 +472,40 @@ class PyInstaller(QWidget):
         self.output_textedit.setText(self.install_cmd)
         self.execute_button.setVisible(True)
 
+    def open_directory(self, directory_path):
+        system = platform.system()
+        if system == 'Windows':
+            subprocess.Popen(['explorer', directory_path])
+        elif system == 'Darwin':
+            subprocess.Popen(['open', directory_path])
+        else:
+            subprocess.Popen(['xdg-open', directory_path])
+
     def read_output(self):
 
-        def run():
-            command = self.output_textedit.toPlainText()
-            with Popen(command, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
-                for line in p.stdout:
-                    print(line, end='')  # process line here
-                    update_output_textedit(line)
+       # def run():
+        command = self.output_textedit.toPlainText()
+        with Popen(command, stdout=PIPE, bufsize=1, universal_newlines=True, stderr=subprocess.STDOUT, text=True) as p:
+            for line in p.stdout:
+                print(line, end='')  # process line here
+                self.update_output_textedit(line)
 
-                if p.returncode != 0:
-                    pass
+            if p.returncode == 0:  # Check if the command executed successfully
+                # Trigger your action here
+                self.open_dir_button.setVisible(True)
 
-        def update_output_textedit(line):
-            self.output_textedit.append(line)
+            if p.returncode != 0:
+                self.open_dir_button.setVisible(True)
+                
+    def update_output_textedit(self, line):
+        self.output_textedit.append(line)
 
-        thread = threading.Thread(target=run)
-        thread.start()
+        #thread = threading.Thread(target=run)
+        #thread.start()
+
+    def start_command(self):
+        threading.Thread(target=self.read_output).start()
 
     def process_finished(self):
-        self.output_textedit.append("DONE")
-        print("done")
+        self.output_textedit.append("-- EXE GENERATED --")
+        
