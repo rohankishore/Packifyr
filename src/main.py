@@ -12,8 +12,7 @@ from qfluentwidgets import (NavigationBar, NavigationItemPosition, MessageBox,
                             PopUpAniStackedWidget, setThemeColor)
 from qframelesswindow import FramelessWindow, TitleBar
 
-import get_captions
-import playlist
+import nuitka
 import settings
 from pyinstaller import PyInstaller
 
@@ -125,8 +124,8 @@ class Window(FramelessWindow):
 
         # create sub interface
         self.pyInstaller = PyInstaller()
-        self.playlistInterface = playlist.YoutubePlaylist()
-        self.captionInterface = get_captions.CaptionWidget()
+        self.playlistInterface = nuitka.Nuitka()
+        # self.captionInterface = get_captions.CaptionWidget()
         self.settingsInterface = settings.SettingsPage()
 
         # initialize layout
@@ -146,9 +145,7 @@ class Window(FramelessWindow):
 
     def initNavigation(self):
         self.addSubInterface(self.pyInstaller, QIcon("resources/icons/pyinstaller.png"), 'PyInstaller', selectedIcon=QIcon("resources/icons/pyinstaller.png"))
-        self.addSubInterface(self.playlistInterface, QIcon("resources/icons/Nuitka.svg"), 'Nuitka', selectedIcon=QIcon("resources/icons/Nuitka.svg"))
-        self.addSubInterface(self.captionInterface, QIcon("resources/icons/captions.svg"), 'Captions',
-                             selectedIcon=QIcon("resources/icons/pyinstaller.png"))
+        #self.addSubInterface(self.playlistInterface, QIcon("resources/icons/Nuitka.svg"), 'Nuitka', selectedIcon=QIcon("resources/icons/Nuitka.svg"))
         self.addSubInterface(self.settingsInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM,
                              FIF.SETTING)
         self.navigationBar.addItem(
@@ -164,7 +161,7 @@ class Window(FramelessWindow):
         self.navigationBar.setCurrentItem(self.pyInstaller.objectName())
 
     def initWindow(self):
-        self.resize(1000, 600)
+        self.resize(1200, 400)
         self.setWindowIcon(QIcon('resources/icons/icon.png'))
         self.setWindowTitle(APP_NAME)
         self.setQss()
