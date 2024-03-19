@@ -14,14 +14,14 @@ PyQt6 GUI for PyInstaller, Nuitka, etc
 </div>
 
 ## 📦 What is Packifyr?
-Spotifyte helps you to use SpotDL with GUI Interface. With Spotifyte, you can download:
-- Single tracks
-- Playlists
-- Every song uploaded by an Artist
+Packifyr helps you to use PyInstaller with GUI Interface. With Packifyr, you can convert your Python file to exe with the help of a modern UI. As of now, it only supports PyInstaller. But I'm working on the support of Nuitka, cx_Freeze, etc. 
+
   
 <br>
 
 ## Interface
+![image](https://github.com/rohankishore/Packifyr/assets/109947257/9c9b3b1d-f9e1-4797-a8d7-db4a103e0fc6)
+![image](https://github.com/rohankishore/Packifyr/assets/109947257/74db6511-558f-43e6-8980-a7a11373b4a7)
 
 <br>
 
@@ -31,17 +31,16 @@ Spotifyte helps you to use SpotDL with GUI Interface. With Spotifyte, you can do
 pip install -r requirements.txt
 ```
 
+- Run  `main.py`
+
 <br>
-
-
-## 🌊 Demo
 
 
 <br>
 
 ## Show Support
 
-Hey! First of all, thank you for considering to support me. You can support me by Buying me a Coffee via Ko-Fi. You can either [Click Here](https://ko-fi.com/rohankishore) or click the button "Buy Me A Coffee" on top of this page or via the GitHub Sponsor button. Thanks a lot :)
+Hey! First of all, thank you for considering supporting me. You can support me by Buying me a Coffee via Ko-Fi. You can either [Click Here](https://ko-fi.com/rohankishore) or click the button "Buy Me A Coffee" on top of this page or via the GitHub Sponsor button. Thanks a lot :)
 
 <br>
 
