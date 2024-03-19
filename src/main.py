@@ -22,7 +22,6 @@ with open("resources/misc/config.json", "r") as themes_file:
     _themes = json.load(themes_file)
 
 theme_color = _themes["theme"]
-progressive = _themes["progressive"]
 
 
 class StackedWidget(QFrame):

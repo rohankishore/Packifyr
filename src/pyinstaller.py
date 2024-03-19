@@ -1,3 +1,4 @@
+import json
 import os
 import platform
 import subprocess
@@ -10,39 +11,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QCombo
 from qfluentwidgets import (TextEdit,
                             ListWidget, LineEdit)
 
-
-class DetailsWidget(QWidget):
-    def __init__(self, summary_text, parent=None):
-        super().__init__(parent)
-
-        self.is_open = True
-
-        layout = QVBoxLayout()
-
-        self.summary_button = QPushButton(summary_text)
-        self.summary_button.clicked.connect(self.toggle_details)
-        layout.addWidget(self.summary_button)
-
-        self.details_layout = QVBoxLayout()
-        self.details_layout.setContentsMargins(10, 0, 0, 0)  # Set left margin to indent
-        layout.addLayout(self.details_layout)
-
-        self.setLayout(layout)
-
-    def add_detail_widget(self, widget):
-        self.details_layout.addWidget(widget)
-
-    def add_detail_layout(self, layout):
-        self.details_layout.addLayout(layout)
-
-    def toggle_details(self):
-        self.is_open = not self.is_open
-        for i in range(self.details_layout.count()):
-            self.details_layout.itemAt(i).widget().setVisible(self.is_open)
-        if self.is_open:
-            self.summary_button.setText("Advanced Options <")
-        else:
-            self.summary_button.setText("Advanced Options >")
+from DetailsWidget import DetailsWidget
 
 
 class PyInstaller(QWidget):
@@ -79,12 +48,12 @@ class PyInstaller(QWidget):
         self.options_layout = QVBoxLayout()
         self.main_layout.addLayout(self.options_layout)
         self.exe_type = QComboBox()
-        self.exe_type.setPlaceholderText("onedir")
+        self.exe_type.setCurrentText("onedir")
         self.exe_type.addItems(["onedir", "onefile"])
         self.options_layout.addWidget(self.exe_type)
 
         self.app_type = QComboBox()
-        self.app_type.setPlaceholderText("Console Based")
+        self.app_type.setCurrentText("Console Based")
         self.app_type.addItems(["Console Based", "Window Based"])
         self.options_layout.addWidget(self.app_type)
 
@@ -148,7 +117,7 @@ class PyInstaller(QWidget):
         self.cmd_layout.addWidget(self.output_textedit)
 
         self.open_dir_button = QPushButton("Open Output Directory")
-        self.open_dir_button.clicked.connect(lambda : self.open_directory(self.py_file_directory))
+        self.open_dir_button.clicked.connect(lambda: self.open_directory(self.py_file_directory))
         self.open_dir_button.setVisible(False)
 
         self.main_layout.addLayout(self.cmd_layout)
@@ -483,7 +452,7 @@ class PyInstaller(QWidget):
 
     def read_output(self):
 
-       # def run():
+        # def run():
         command = self.output_textedit.toPlainText()
         with Popen(command, stdout=PIPE, bufsize=1, universal_newlines=True, stderr=subprocess.STDOUT, text=True) as p:
             for line in p.stdout:
@@ -496,16 +465,15 @@ class PyInstaller(QWidget):
 
             if p.returncode != 0:
                 self.open_dir_button.setVisible(True)
-                
+
     def update_output_textedit(self, line):
         self.output_textedit.append(line)
 
-        #thread = threading.Thread(target=run)
-        #thread.start()
+        # thread = threading.Thread(target=run)
+        # thread.start()
 
     def start_command(self):
         threading.Thread(target=self.read_output).start()
 
     def process_finished(self):
         self.output_textedit.append("-- EXE GENERATED --")
-        
