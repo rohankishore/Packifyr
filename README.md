@@ -15,7 +15,7 @@ PyQt6 GUI for PyInstaller, Nuitka, etc
 
 ## 📦 What is Packifyr?
 Packifyr helps you to use PyInstaller with GUI Interface. With Packifyr, you can convert your Python file to exe with the help of a modern UI. As of now, it only supports PyInstaller. But I'm working on the support of Nuitka, cx_Freeze, etc. 
-
+  
   
 <br>
 
