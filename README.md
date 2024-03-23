@@ -43,7 +43,7 @@ pip install -r requirements.txt
 Hey! First of all, thank you for considering supporting me. You can support me by Buying me a Coffee via Ko-Fi. You can either [Click Here](https://ko-fi.com/rohankishore) or click the button "Buy Me A Coffee" on top of this page or via the GitHub Sponsor button. Thanks a lot :)
 
 <br>
-
+    
 ## 💖 Credits
 
 This project was made possible just because of [zhiyiYo](https://github.com/zhiyiYo)'s [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets).
